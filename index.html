@@ -1,0 +1,828 @@
+<!DOCTYPE html>
+<html lang="id" class="dark">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Sistem IoT Automasi NPK & Dosing Pupuk Presisi Tinggi</title>
+    <!-- Tailwind CSS -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <!-- Font Awesome Icons -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <!-- Google Fonts: Plus Jakarta Sans -->
+    <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
+    <!-- Chart.js -->
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+
+    <script>
+        tailwind.config = {
+            darkMode: 'class',
+            theme: {
+                extend: {
+                    colors: {
+                        navy: {
+                            800: '#0f172a',
+                            900: '#090d16',
+                            950: '#030712'
+                        },
+                        brand: {
+                            blue: '#0EA5E9',
+                            emerald: '#10B981',
+                            amber: '#F59E0B',
+                            rose: '#EF4444'
+                        }
+                    },
+                    fontFamily: {
+                        sans: ['Plus Jakarta Sans', 'sans-serif'],
+                    }
+                }
+            }
+        }
+    </script>
+    <style>
+        body {
+            font-family: 'Plus Jakarta Sans', sans-serif;
+            background-color: #090d16;
+            color: #f3f4f6;
+        }
+        .glow-emerald {
+            box-shadow: 0 0 25px -5px rgba(16, 185, 129, 0.3);
+        }
+        .glow-blue {
+            box-shadow: 0 0 25px -5px rgba(14, 165, 233, 0.3);
+        }
+        .glow-amber {
+            box-shadow: 0 0 25px -5px rgba(245, 158, 11, 0.3);
+        }
+        .glass-card {
+            background: rgba(15, 23, 42, 0.75);
+            backdrop-filter: blur(12px);
+            border: 1px solid rgba(255, 255, 255, 0.08);
+        }
+        /* Custom Scrollbar */
+        ::-webkit-scrollbar {
+            width: 6px;
+            height: 6px;
+        }
+        ::-webkit-scrollbar-track {
+            background: #0f172a;
+        }
+        ::-webkit-scrollbar-thumb {
+            background: #1e293b;
+            border-radius: 4px;
+        }
+        ::-webkit-scrollbar-thumb:hover {
+            background: #334155;
+        }
+    </style>
+</head>
+<body class="min-h-screen pb-12 antialiased selection:bg-sky-500 selection:text-white">
+
+    <!-- Top Banner & Header -->
+    <header class="border-b border-slate-800 bg-navy-800/80 backdrop-blur-md sticky top-0 z-50">
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-3.5">
+            <!-- Academic Banner Info -->
+            <div class="flex flex-col lg:flex-row items-center justify-between gap-4 border-b border-slate-800/80 pb-3 mb-3">
+                <div class="flex items-center space-x-3.5 w-full lg:w-auto">
+                    <!-- Tut Wuri Handayani SVG Logo -->
+                    <div class="w-11 h-11 bg-white/10 rounded-2xl p-1.5 flex items-center justify-center border border-white/20 shrink-0">
+                        <svg class="w-full h-full text-sky-400" viewBox="0 0 100 100" fill="currentColor">
+                            <circle cx="50" cy="50" r="45" fill="none" stroke="currentColor" stroke-width="4"/>
+                            <path d="M50 15 L60 35 L80 35 L65 48 L70 70 L50 55 L30 70 L35 48 L20 35 L40 35 Z" fill="#0EA5E9"/>
+                            <path d="M50 60 C35 60 25 75 25 85 L75 85 C75 75 65 60 50 60 Z" fill="#10B981"/>
+                        </svg>
+                    </div>
+                    <div>
+                        <h2 class="text-xs font-bold text-sky-400 tracking-wider uppercase">RANCANG BANGUN SISTEM IOT:</h2>
+                        <h1 class="text-sm md:text-base font-extrabold text-white tracking-tight leading-tight">
+                            Automasi Pemantauan Unsur Hara NPK Tanah & Pengendalian Dosing Pupuk Presisi Tinggi
+                        </h1>
+                    </div>
+                </div>
+
+                <!-- Student / Identity Badge -->
+                <div class="flex flex-wrap items-center gap-3 w-full lg:w-auto justify-start lg:justify-end text-xs">
+                    <div class="bg-slate-900/90 border border-slate-700/80 px-3 py-1.5 rounded-xl">
+                        <span class="text-slate-400">NAMA:</span>
+                        <span class="font-bold text-white ml-1">LOGA JUPEN NAKLES</span>
+                    </div>
+                    <div class="bg-slate-900/90 border border-slate-700/80 px-3 py-1.5 rounded-xl">
+                        <span class="text-slate-400">PRODI:</span>
+                        <span class="font-bold text-sky-400 ml-1">TEKNOLOGI REKAYASA KOMPUTER</span>
+                    </div>
+                    <div class="bg-slate-900/90 border border-slate-700/80 px-3 py-1.5 rounded-xl">
+                        <span class="text-slate-400">NIM:</span>
+                        <span class="font-bold text-amber-400 ml-1">202687001</span>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Real-time Status Badges -->
+            <div class="flex flex-wrap items-center justify-between gap-3 text-xs">
+                <div class="flex items-center space-x-2">
+                    <span class="inline-flex items-center px-2.5 py-1 rounded-full text-xs font-semibold bg-emerald-500/10 text-emerald-400 border border-emerald-500/20">
+                        <span class="w-2 h-2 mr-1.5 rounded-full bg-emerald-400 animate-pulse"></span>
+                        SYSTEM ONLINE
+                    </span>
+                    <span class="inline-flex items-center px-2.5 py-1 rounded-full text-xs font-semibold bg-sky-500/10 text-sky-400 border border-sky-500/20">
+                        <i class="fa-solid fa-microchip mr-1.5"></i> ESP32 READY
+                    </span>
+                    <span class="inline-flex items-center px-2.5 py-1 rounded-full text-xs font-semibold bg-purple-500/10 text-purple-400 border border-purple-500/20">
+                        <i class="fa-solid fa-cloud-arrow-up mr-1.5"></i> CLOUD SYNCED
+                    </span>
+                </div>
+                <div class="text-slate-400 font-medium flex items-center space-x-2">
+                    <i class="fa-regular fa-clock text-sky-400"></i>
+                    <span id="live-timestamp">30 Sep 2026, 20:22:45 WIB</span>
+                </div>
+            </div>
+        </div>
+    </header>
+
+    <main class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 pt-6 space-y-6">
+
+        <!-- SECTION 1: SYSTEM ARCHITECTURE LAYERS OVERVIEW -->
+        <section>
+            <div class="flex items-center justify-between mb-3">
+                <h3 class="text-xs font-bold text-sky-400 uppercase tracking-widest flex items-center">
+                    <i class="fa-solid fa-sitemap mr-2"></i> IoT System Architecture Layers
+                </h3>
+                <span class="text-[11px] text-slate-400">Arsitektur 4-Tingkat Alur Data Smart Farm</span>
+            </div>
+            <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
+                
+                <!-- Layer 1: Field Layer -->
+                <div class="glass-card rounded-2xl p-4 border-l-4 border-l-emerald-500 hover:border-emerald-400 transition">
+                    <div class="flex items-center justify-between mb-2">
+                        <span class="text-[10px] font-extrabold uppercase px-2 py-0.5 rounded bg-emerald-500/20 text-emerald-400">Layer 01</span>
+                        <i class="fa-solid fa-seedling text-emerald-400 text-lg"></i>
+                    </div>
+                    <h4 class="font-bold text-white text-sm">FIELD LAYER</h4>
+                    <p class="text-xs text-slate-400 mt-1">Smart Greenhouse, NPK RS485 Probe Sensor & Root Zone Area.</p>
+                </div>
+
+                <!-- Layer 2: Field Devices Layer -->
+                <div class="glass-card rounded-2xl p-4 border-l-4 border-l-sky-500 hover:border-sky-400 transition">
+                    <div class="flex items-center justify-between mb-2">
+                        <span class="text-[10px] font-extrabold uppercase px-2 py-0.5 rounded bg-sky-500/20 text-sky-400">Layer 02</span>
+                        <i class="fa-solid fa-microchip text-sky-400 text-lg"></i>
+                    </div>
+                    <h4 class="font-bold text-white text-sm">FIELD DEVICES LAYER</h4>
+                    <p class="text-xs text-slate-400 mt-1">ESP32 Main Microcontroller, Modbus RS485 & Relay Dosing Pumps.</p>
+                </div>
+
+                <!-- Layer 3: Cloud Platform Layer -->
+                <div class="glass-card rounded-2xl p-4 border-l-4 border-l-purple-500 hover:border-purple-400 transition">
+                    <div class="flex items-center justify-between mb-2">
+                        <span class="text-[10px] font-extrabold uppercase px-2 py-0.5 rounded bg-purple-500/20 text-purple-400">Layer 03</span>
+                        <i class="fa-solid fa-cloud text-purple-400 text-lg"></i>
+                    </div>
+                    <h4 class="font-bold text-white text-sm">CLOUD PLATFORM LAYER</h4>
+                    <p class="text-xs text-slate-400 mt-1">Cloud Telemetry DB, Rule Engine Logika Nutrisi & Automated Trigger.</p>
+                </div>
+
+                <!-- Layer 4: UI & Monitoring Layer -->
+                <div class="glass-card rounded-2xl p-4 border-l-4 border-l-amber-500 hover:border-amber-400 transition">
+                    <div class="flex items-center justify-between mb-2">
+                        <span class="text-[10px] font-extrabold uppercase px-2 py-0.5 rounded bg-amber-500/20 text-amber-400">Layer 04</span>
+                        <i class="fa-solid fa-desktop text-amber-400 text-lg"></i>
+                    </div>
+                    <h4 class="font-bold text-white text-sm">USER INTERFACE LAYER</h4>
+                    <p class="text-xs text-slate-400 mt-1">Web Dashboard Telemetry, Grafik Tren NPK & Peringatan Dini Instan.</p>
+                </div>
+
+            </div>
+        </section>
+
+        <!-- SECTION 2: REAL-TIME NPK SENSOR CARDS & DASHBOARD -->
+        <section class="grid grid-cols-1 lg:grid-cols-3 gap-6">
+            
+            <!-- Left 2 Columns: Live NPK Telemetry Metrics -->
+            <div class="lg:col-span-2 space-y-4">
+                <div class="flex items-center justify-between">
+                    <h3 class="text-sm font-bold text-white flex items-center">
+                        <i class="fa-solid fa-chart-line text-emerald-400 mr-2"></i> Real-Time NPK & Soil Telemetry (Sensor RS485)
+                    </h3>
+                    <span class="text-xs text-emerald-400 font-semibold flex items-center">
+                        <span class="w-2 h-2 rounded-full bg-emerald-400 mr-1.5 animate-ping"></span> Live Read
+                    </span>
+                </div>
+
+                <!-- Cards Grid -->
+                <div class="grid grid-cols-2 sm:grid-cols-3 gap-4">
+                    
+                    <!-- Nitrogen Card -->
+                    <div id="card-n" class="glass-card rounded-2xl p-4 border border-amber-500/40 relative overflow-hidden transition-all duration-300">
+                        <div class="flex items-center justify-between text-slate-400 text-xs mb-2">
+                            <span class="font-bold text-slate-300">NITROGEN (N)</span>
+                            <i class="fa-solid fa-atom text-amber-400 text-base"></i>
+                        </div>
+                        <div class="flex items-baseline justify-between">
+                            <span id="val-n" class="text-3xl font-extrabold text-amber-400">28</span>
+                            <span class="text-xs text-slate-400">ppm</span>
+                        </div>
+                        <div class="mt-3 flex items-center justify-between text-[11px]">
+                            <span class="text-slate-400">Threshold: &lt;30 ppm</span>
+                            <span id="badge-n" class="px-2 py-0.5 rounded font-bold bg-amber-500/20 text-amber-400">DEFISIT</span>
+                        </div>
+                    </div>
+
+                    <!-- Fosfor Card -->
+                    <div id="card-p" class="glass-card rounded-2xl p-4 border border-amber-500/40 relative overflow-hidden transition-all duration-300">
+                        <div class="flex items-center justify-between text-slate-400 text-xs mb-2">
+                            <span class="font-bold text-slate-300">FOSFOR (P)</span>
+                            <i class="fa-solid fa-flask text-amber-400 text-base"></i>
+                        </div>
+                        <div class="flex items-baseline justify-between">
+                            <span id="val-p" class="text-3xl font-extrabold text-amber-400">15</span>
+                            <span class="text-xs text-slate-400">ppm</span>
+                        </div>
+                        <div class="mt-3 flex items-center justify-between text-[11px]">
+                            <span class="text-slate-400">Threshold: &lt;20 ppm</span>
+                            <span id="badge-p" class="px-2 py-0.5 rounded font-bold bg-amber-500/20 text-amber-400">DEFISIT</span>
+                        </div>
+                    </div>
+
+                    <!-- Kalium Card -->
+                    <div id="card-k" class="glass-card rounded-2xl p-4 border border-emerald-500/30 relative overflow-hidden transition-all duration-300">
+                        <div class="flex items-center justify-between text-slate-400 text-xs mb-2">
+                            <span class="font-bold text-slate-300">KALIUM (K)</span>
+                            <i class="fa-solid fa-cubes-stacked text-emerald-400 text-base"></i>
+                        </div>
+                        <div class="flex items-baseline justify-between">
+                            <span id="val-k" class="text-3xl font-extrabold text-emerald-400">120</span>
+                            <span class="text-xs text-slate-400">ppm</span>
+                        </div>
+                        <div class="mt-3 flex items-center justify-between text-[11px]">
+                            <span class="text-slate-400">Target: 100-150</span>
+                            <span id="badge-k" class="px-2 py-0.5 rounded font-bold bg-emerald-500/20 text-emerald-400">OPTIMAL</span>
+                        </div>
+                    </div>
+
+                    <!-- Soil pH Card -->
+                    <div class="glass-card rounded-2xl p-4 border border-slate-700/60">
+                        <div class="flex items-center justify-between text-slate-400 text-xs mb-2">
+                            <span class="font-bold text-slate-300">pH TANAH</span>
+                            <i class="fa-solid fa-droplet text-sky-400 text-base"></i>
+                        </div>
+                        <div class="flex items-baseline justify-between">
+                            <span id="val-ph" class="text-3xl font-extrabold text-sky-400">6.5</span>
+                            <span class="text-xs text-slate-400">pH</span>
+                        </div>
+                        <div class="mt-3 flex items-center justify-between text-[11px]">
+                            <span class="text-slate-400">Target: 6.0 - 7.0</span>
+                            <span class="px-2 py-0.5 rounded font-bold bg-emerald-500/20 text-emerald-400">SEIMBANG</span>
+                        </div>
+                    </div>
+
+                    <!-- Soil Moisture Card -->
+                    <div class="glass-card rounded-2xl p-4 border border-slate-700/60">
+                        <div class="flex items-center justify-between text-slate-400 text-xs mb-2">
+                            <span class="font-bold text-slate-300">KELEMBAPAN TANAH</span>
+                            <i class="fa-solid fa-water text-blue-400 text-base"></i>
+                        </div>
+                        <div class="flex items-baseline justify-between">
+                            <span id="val-moisture" class="text-3xl font-extrabold text-blue-400">68</span>
+                            <span class="text-xs text-slate-400">% RH</span>
+                        </div>
+                        <div class="mt-3 flex items-center justify-between text-[11px]">
+                            <span class="text-slate-400">Optimal: 60-80%</span>
+                            <span class="px-2 py-0.5 rounded font-bold bg-emerald-500/20 text-emerald-400">LEMBAP</span>
+                        </div>
+                    </div>
+
+                    <!-- Soil Temp Card -->
+                    <div class="glass-card rounded-2xl p-4 border border-slate-700/60">
+                        <div class="flex items-center justify-between text-slate-400 text-xs mb-2">
+                            <span class="font-bold text-slate-300">SUHU TANAH</span>
+                            <i class="fa-solid fa-temperature-three-quarters text-rose-400 text-base"></i>
+                        </div>
+                        <div class="flex items-baseline justify-between">
+                            <span id="val-temp" class="text-3xl font-extrabold text-rose-400">26.4</span>
+                            <span class="text-xs text-slate-400">°C</span>
+                        </div>
+                        <div class="mt-3 flex items-center justify-between text-[11px]">
+                            <span class="text-slate-400">Normal: 22-28°C</span>
+                            <span class="px-2 py-0.5 rounded font-bold bg-emerald-500/20 text-emerald-400">NORMAL</span>
+                        </div>
+                    </div>
+
+                </div>
+
+                <!-- RULE ENGINE INTERACTIVE SIMULATOR CARD -->
+                <div class="glass-card rounded-2xl p-5 border border-sky-500/30 space-y-4">
+                    <div class="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-2">
+                        <div>
+                            <h4 class="text-sm font-bold text-white flex items-center">
+                                <i class="fa-solid fa-code text-sky-400 mr-2"></i> Rule Engine Logika Nutrisi Cloud
+                            </h4>
+                            <p class="text-xs text-slate-400">Evaluasi logika presisi tinggi pemicu Dosing Pump Relay ESP32</p>
+                        </div>
+                        <span class="px-2.5 py-1 rounded-full text-xs font-extrabold bg-sky-500/20 text-sky-300 border border-sky-500/40">
+                            RULE ENGINE ACTIVE
+                        </span>
+                    </div>
+
+                    <!-- Pseudo-Code Viewer -->
+                    <div class="bg-navy-950 rounded-xl p-3.5 font-mono text-xs text-slate-300 border border-slate-800 space-y-1 overflow-x-auto">
+                        <div class="text-slate-500">// Rule Engine Logika Nutrisi Presisi;</div>
+                        <div id="code-line-1" class="transition-colors duration-300">
+                            <span class="text-purple-400">IF</span> Nitrogen &lt; <span class="text-amber-300">30 ppm</span> <span class="text-purple-400">THEN</span> Execute_Dosing(<span class="text-emerald-300">Pump_N</span>, <span class="text-sky-300">50ml</span>);
+                        </div>
+                        <div id="code-line-2" class="transition-colors duration-300">
+                            <span class="text-purple-400">ELSE IF</span> Phosfor &lt; <span class="text-amber-300">20 ppm</span> <span class="text-purple-400">THEN</span> Execute_Dosing(<span class="text-emerald-300">Pump_P</span>, <span class="text-sky-300">30ml</span>);
+                        </div>
+                        <div id="code-line-3" class="transition-colors duration-300">
+                            <span class="text-purple-400">ELSE</span> Status = <span class="text-emerald-400">"Kondisi Tanah Optimal"</span>;
+                        </div>
+                    </div>
+
+                    <!-- Simulator Trigger Buttons -->
+                    <div class="space-y-2">
+                        <p class="text-xs font-semibold text-slate-300">Simulasi Parameter Input Rule Engine:</p>
+                        <div class="flex flex-wrap gap-2">
+                            <button onclick="setSimulation('def_n')" class="px-3 py-2 rounded-xl text-xs font-bold bg-amber-500/20 hover:bg-amber-500/30 text-amber-300 border border-amber-500/40 transition active:scale-95 flex items-center">
+                                <i class="fa-solid fa-play text-amber-400 mr-1.5"></i> Simulasi Defisit Nitrogen (N)
+                            </button>
+                            <button onclick="setSimulation('def_p')" class="px-3 py-2 rounded-xl text-xs font-bold bg-purple-500/20 hover:bg-purple-500/30 text-purple-300 border border-purple-500/40 transition active:scale-95 flex items-center">
+                                <i class="fa-solid fa-play text-purple-400 mr-1.5"></i> Simulasi Defisit Fosfor (P)
+                            </button>
+                            <button onclick="setSimulation('optimal')" class="px-3 py-2 rounded-xl text-xs font-bold bg-emerald-500/20 hover:bg-emerald-500/30 text-emerald-300 border border-emerald-500/40 transition active:scale-95 flex items-center">
+                                <i class="fa-solid fa-check text-emerald-400 mr-1.5"></i> Set Kondisi Optimal
+                            </button>
+                        </div>
+                    </div>
+
+                </div>
+
+            </div>
+
+            <!-- Right 1 Column: Smart Dosing Control Panel -->
+            <div class="space-y-4">
+                <div class="flex items-center justify-between">
+                    <h3 class="text-sm font-bold text-white flex items-center">
+                        <i class="fa-solid fa-sliders text-sky-400 mr-2"></i> Smart Dosing Control Panel
+                    </h3>
+                    <span class="text-xs text-slate-400">ESP32 Relay Modules</span>
+                </div>
+
+                <div class="glass-card rounded-2xl p-5 border border-slate-700/80 space-y-5">
+                    
+                    <!-- Water & Fertilizer Tanks Indicators -->
+                    <div>
+                        <h4 class="text-xs font-bold text-slate-300 uppercase tracking-wider mb-3">Level Tengki Nutrisi & Air</h4>
+                        <div class="grid grid-cols-4 gap-2 text-center">
+                            
+                            <!-- Tank Air -->
+                            <div class="bg-navy-900/90 rounded-xl p-2 border border-slate-800 flex flex-col items-center">
+                                <div class="w-8 h-16 bg-slate-800 rounded-lg relative overflow-hidden mb-1.5">
+                                    <div id="tank-water" class="absolute bottom-0 left-0 right-0 bg-sky-500 transition-all duration-500 rounded-b-md" style="height: 85%;"></div>
+                                </div>
+                                <span class="text-[10px] font-bold text-slate-300">AIR</span>
+                                <span id="txt-water" class="text-[10px] text-sky-400 font-bold">85%</span>
+                            </div>
+
+                            <!-- Tank N -->
+                            <div class="bg-navy-900/90 rounded-xl p-2 border border-slate-800 flex flex-col items-center">
+                                <div class="w-8 h-16 bg-slate-800 rounded-lg relative overflow-hidden mb-1.5">
+                                    <div id="tank-n" class="absolute bottom-0 left-0 right-0 bg-amber-500 transition-all duration-500 rounded-b-md" style="height: 60%;"></div>
+                                </div>
+                                <span class="text-[10px] font-bold text-slate-300">PUPUK N</span>
+                                <span id="txt-n" class="text-[10px] text-amber-400 font-bold">60%</span>
+                            </div>
+
+                            <!-- Tank P -->
+                            <div class="bg-navy-900/90 rounded-xl p-2 border border-slate-800 flex flex-col items-center">
+                                <div class="w-8 h-16 bg-slate-800 rounded-lg relative overflow-hidden mb-1.5">
+                                    <div id="tank-p" class="absolute bottom-0 left-0 right-0 bg-purple-500 transition-all duration-500 rounded-b-md" style="height: 75%;"></div>
+                                </div>
+                                <span class="text-[10px] font-bold text-slate-300">PUPUK P</span>
+                                <span id="txt-p" class="text-[10px] text-purple-400 font-bold">75%</span>
+                            </div>
+
+                            <!-- Tank K -->
+                            <div class="bg-navy-900/90 rounded-xl p-2 border border-slate-800 flex flex-col items-center">
+                                <div class="w-8 h-16 bg-slate-800 rounded-lg relative overflow-hidden mb-1.5">
+                                    <div id="tank-k" class="absolute bottom-0 left-0 right-0 bg-emerald-500 transition-all duration-500 rounded-b-md" style="height: 90%;"></div>
+                                </div>
+                                <span class="text-[10px] font-bold text-slate-300">PUPUK K</span>
+                                <span id="txt-k" class="text-[10px] text-emerald-400 font-bold">90%</span>
+                            </div>
+
+                        </div>
+                    </div>
+
+                    <!-- Dosing Status Banner -->
+                    <div id="dosing-status-box" class="bg-emerald-500/10 border border-emerald-500/30 rounded-xl p-3 flex items-center space-x-3 transition-colors duration-300">
+                        <div id="dosing-icon" class="w-9 h-9 rounded-lg bg-emerald-500/20 text-emerald-400 flex items-center justify-center shrink-0">
+                            <i class="fa-solid fa-check-double text-base"></i>
+                        </div>
+                        <div>
+                            <p class="text-[10px] text-slate-400 uppercase font-bold tracking-wider">Status Dosing Saat Ini</p>
+                            <h5 id="dosing-status-text" class="text-xs font-bold text-emerald-400">Kondisi Tanah Optimal (Standby)</h5>
+                        </div>
+                    </div>
+
+                    <!-- Manual Override Controls Switch -->
+                    <div class="space-y-3 pt-2 border-t border-slate-800">
+                        <div class="flex justify-between items-center">
+                            <h4 class="text-xs font-bold text-slate-300 uppercase tracking-wider">Manual Relay Override</h4>
+                            <span class="text-[10px] text-slate-400">Manual / Auto</span>
+                        </div>
+
+                        <!-- Pump N Switch -->
+                        <div class="flex items-center justify-between p-2.5 rounded-xl bg-navy-900/80 border border-slate-800">
+                            <div class="flex items-center space-x-2.5">
+                                <span class="w-2 h-2 rounded-full bg-amber-400"></span>
+                                <span class="text-xs font-semibold text-slate-200">Pompa Pupuk Nitrogen (N)</span>
+                            </div>
+                            <button onclick="togglePump('n')" id="btn-pump-n" class="px-3 py-1 rounded-lg text-xs font-bold bg-slate-800 text-slate-400 hover:text-white transition">
+                                OFF
+                            </button>
+                        </div>
+
+                        <!-- Pump P Switch -->
+                        <div class="flex items-center justify-between p-2.5 rounded-xl bg-navy-900/80 border border-slate-800">
+                            <div class="flex items-center space-x-2.5">
+                                <span class="w-2 h-2 rounded-full bg-purple-400"></span>
+                                <span class="text-xs font-semibold text-slate-200">Pompa Pupuk Fosfor (P)</span>
+                            </div>
+                            <button onclick="togglePump('p')" id="btn-pump-p" class="px-3 py-1 rounded-lg text-xs font-bold bg-slate-800 text-slate-400 hover:text-white transition">
+                                OFF
+                            </button>
+                        </div>
+
+                        <!-- Pump K Switch -->
+                        <div class="flex items-center justify-between p-2.5 rounded-xl bg-navy-900/80 border border-slate-800">
+                            <div class="flex items-center space-x-2.5">
+                                <span class="w-2 h-2 rounded-full bg-emerald-400"></span>
+                                <span class="text-xs font-semibold text-slate-200">Pompa Pupuk Kalium (K)</span>
+                            </div>
+                            <button onclick="togglePump('k')" id="btn-pump-k" class="px-3 py-1 rounded-lg text-xs font-bold bg-slate-800 text-slate-400 hover:text-white transition">
+                                OFF
+                            </button>
+                        </div>
+
+                        <!-- Main Water Pump Switch -->
+                        <div class="flex items-center justify-between p-2.5 rounded-xl bg-navy-900/80 border border-slate-800">
+                            <div class="flex items-center space-x-2.5">
+                                <span class="w-2 h-2 rounded-full bg-sky-400"></span>
+                                <span class="text-xs font-semibold text-slate-200">Pompa Utama Air Injeksi</span>
+                            </div>
+                            <button onclick="togglePump('water')" id="btn-pump-water" class="px-3 py-1 rounded-lg text-xs font-bold bg-slate-800 text-slate-400 hover:text-white transition">
+                                OFF
+                            </button>
+                        </div>
+
+                    </div>
+
+                </div>
+            </div>
+
+        </section>
+
+        <!-- SECTION 3: CHARTS & ACTIVITY AUDIT LOG -->
+        <section class="grid grid-cols-1 lg:grid-cols-3 gap-6">
+            
+            <!-- NPK Daily Historical Trend Line Chart -->
+            <div class="lg:col-span-2 glass-card rounded-2xl p-5 border border-slate-700/80">
+                <div class="flex flex-col sm:flex-row justify-between items-start sm:items-center mb-4 gap-2">
+                    <div>
+                        <h4 class="text-sm font-bold text-white flex items-center">
+                            <i class="fa-solid fa-chart-area text-sky-400 mr-2"></i> Grafik Tren Nutrisi NPK Harian
+                        </h4>
+                        <p class="text-xs text-slate-400">Visualisasi riwayat kadar Nitrogen, Fosfor, dan Kalium harian</p>
+                    </div>
+                    <div class="flex space-x-1 bg-navy-950 p-1 rounded-xl border border-slate-800 text-xs">
+                        <button onclick="changeChartRange('7d')" id="btn-7d" class="px-3 py-1 rounded-lg bg-sky-500 text-white font-bold">7 Hari</button>
+                        <button onclick="changeChartRange('24h')" id="btn-24h" class="px-3 py-1 rounded-lg text-slate-400 hover:text-white font-semibold">24 Jam</button>
+                    </div>
+                </div>
+                <div class="h-64">
+                    <canvas id="npkChart"></canvas>
+                </div>
+            </div>
+
+            <!-- Activity & Early Warning Notification Log -->
+            <div class="glass-card rounded-2xl p-5 border border-slate-700/80 flex flex-col justify-between">
+                <div>
+                    <div class="flex justify-between items-center mb-3">
+                        <h4 class="text-sm font-bold text-white flex items-center">
+                            <i class="fa-solid fa-bell text-amber-400 mr-2"></i> Log Peringatan & Dosing
+                        </h4>
+                        <span class="text-[10px] text-slate-400">Auto Real-time Log</span>
+                    </div>
+
+                    <div id="log-container" class="space-y-2.5 max-h-64 overflow-y-auto pr-1">
+                        
+                        <div class="p-2.5 rounded-xl bg-amber-500/10 border border-amber-500/20 text-xs">
+                            <div class="flex justify-between items-center text-amber-400 font-bold mb-0.5">
+                                <span><i class="fa-solid fa-triangle-exclamation mr-1"></i> Defisit Nitrogen Terdeteksi</span>
+                                <span class="text-[10px] text-slate-400 font-normal">20:20:00</span>
+                            </div>
+                            <p class="text-slate-300 text-[11px]">Kadar Nitrogen 28 ppm (&lt; 30 ppm). Executing Pump N (50ml).</p>
+                        </div>
+
+                        <div class="p-2.5 rounded-xl bg-purple-500/10 border border-purple-500/20 text-xs">
+                            <div class="flex justify-between items-center text-purple-400 font-bold mb-0.5">
+                                <span><i class="fa-solid fa-circle-check mr-1"></i> Dosing Pupuk P Selesai</span>
+                                <span class="text-[10px] text-slate-400 font-normal">18:45:12</span>
+                            </div>
+                            <p class="text-slate-300 text-[11px]">Injeksi 30ml pupuk P berhasil dieksekusi oleh modul ESP32.</p>
+                        </div>
+
+                        <div class="p-2.5 rounded-xl bg-emerald-500/10 border border-emerald-500/20 text-xs">
+                            <div class="flex justify-between items-center text-emerald-400 font-bold mb-0.5">
+                                <span><i class="fa-solid fa-wifi mr-1"></i> ESP32 Synchronization</span>
+                                <span class="text-[10px] text-slate-400 font-normal">16:30:00</span>
+                            </div>
+                            <p class="text-slate-300 text-[11px]">Koneksi Modbus RS485 & Cloud Sync stabil (Ping: 12ms).</p>
+                        </div>
+
+                    </div>
+                </div>
+
+                <button onclick="clearLogs()" class="mt-4 w-full py-2 rounded-xl bg-navy-900 border border-slate-800 text-xs text-slate-400 hover:text-white hover:border-slate-700 transition">
+                    Bersihkan Riwayat Log
+                </button>
+            </div>
+
+        </section>
+
+    </main>
+
+    <!-- Footer -->
+    <footer class="mt-12 border-t border-slate-800/80 py-6 text-center text-xs text-slate-500">
+        <p>© 2026 LOGA JUPEN NAKLES - NIM: 202687001 | Teknologi Rekayasa Komputer</p>
+        <p class="mt-1 text-slate-600">Smart Agriculture & High-Precision Automatic NPK Dosing System Based on IoT</p>
+    </footer>
+
+    <!-- JavaScript Application Logic -->
+    <script>
+        // System State Variables
+        let simState = 'def_n'; // 'def_n', 'def_p', 'optimal'
+        let pumpStates = { n: false, p: false, k: false, water: false };
+        let chartInstance = null;
+
+        // Initialize Application
+        window.onload = function() {
+            initChart();
+            startLiveClock();
+            setSimulation('def_n'); // Default initial state from screenshot
+        };
+
+        // Real-time Clock Update
+        function startLiveClock() {
+            setInterval(() => {
+                const now = new Date();
+                const dateOptions = { day: '2-digit', month: 'short', year: 'numeric' };
+                const timeOptions = { hour: '2-digit', minute: '2-digit', second: '2-digit', hour12: false };
+                const dateStr = now.toLocaleDateString('id-ID', dateOptions);
+                const timeStr = now.toLocaleTimeString('id-ID', timeOptions);
+                document.getElementById('live-timestamp').innerText = `${dateStr}, ${timeStr} WIB`;
+            }, 1000);
+        }
+
+        // Simulation Trigger Rule Engine Logic
+        function setSimulation(mode) {
+            simState = mode;
+            
+            // Reset active code highlight styling
+            document.getElementById('code-line-1').className = 'transition-colors duration-300 text-slate-300';
+            document.getElementById('code-line-2').className = 'transition-colors duration-300 text-slate-300';
+            document.getElementById('code-line-3').className = 'transition-colors duration-300 text-slate-300';
+
+            const statusBox = document.getElementById('dosing-status-box');
+            const statusText = document.getElementById('dosing-status-text');
+            const statusIcon = document.getElementById('dosing-icon');
+
+            if (mode === 'def_n') {
+                // Set Values
+                document.getElementById('val-n').innerText = '28';
+                document.getElementById('val-p').innerText = '22';
+                document.getElementById('val-k').innerText = '120';
+
+                // Set Badges
+                updateBadge('badge-n', 'DEFISIT (<30)', 'amber');
+                updateBadge('badge-p', 'OPTIMAL', 'emerald');
+                updateBadge('badge-k', 'OPTIMAL', 'emerald');
+
+                // Highlight Rule Engine Line 1
+                document.getElementById('code-line-1').className = 'p-1 rounded bg-amber-500/20 text-amber-300 font-bold border-l-2 border-amber-400';
+
+                // Update Status Banner
+                statusBox.className = 'bg-amber-500/10 border border-amber-500/30 rounded-xl p-3 flex items-center space-x-3 transition-colors duration-300';
+                statusIcon.className = 'w-9 h-9 rounded-lg bg-amber-500/20 text-amber-400 flex items-center justify-center shrink-0';
+                statusIcon.innerHTML = '<i class="fa-solid fa-pump-medical text-base animate-pulse"></i>';
+                statusText.innerText = 'Memompa 50ml Pupuk Nitrogen (N)...';
+                statusText.className = 'text-xs font-bold text-amber-400';
+
+                // Add Audit Log
+                addLog('Defisit Nitrogen Terdeteksi', 'Kadar Nitrogen 28 ppm (< 30 ppm). Memicu Dosing Pump N (50ml).', 'amber');
+
+            } else if (mode === 'def_p') {
+                // Set Values
+                document.getElementById('val-n').innerText = '35';
+                document.getElementById('val-p').innerText = '15';
+                document.getElementById('val-k').innerText = '115';
+
+                // Set Badges
+                updateBadge('badge-n', 'OPTIMAL', 'emerald');
+                updateBadge('badge-p', 'DEFISIT (<20)', 'purple');
+                updateBadge('badge-k', 'OPTIMAL', 'emerald');
+
+                // Highlight Rule Engine Line 2
+                document.getElementById('code-line-2').className = 'p-1 rounded bg-purple-500/20 text-purple-300 font-bold border-l-2 border-purple-400';
+
+                // Update Status Banner
+                statusBox.className = 'bg-purple-500/10 border border-purple-500/30 rounded-xl p-3 flex items-center space-x-3 transition-colors duration-300';
+                statusIcon.className = 'w-9 h-9 rounded-lg bg-purple-500/20 text-purple-400 flex items-center justify-center shrink-0';
+                statusIcon.innerHTML = '<i class="fa-solid fa-pump-medical text-base animate-pulse"></i>';
+                statusText.innerText = 'Memompa 30ml Pupuk Fosfor (P)...';
+                statusText.className = 'text-xs font-bold text-purple-400';
+
+                // Add Audit Log
+                addLog('Defisit Fosfor Terdeteksi', 'Kadar Fosfor 15 ppm (< 20 ppm). Memicu Dosing Pump P (30ml).', 'purple');
+
+            } else if (mode === 'optimal') {
+                // Set Values
+                document.getElementById('val-n').innerText = '42';
+                document.getElementById('val-p').innerText = '28';
+                document.getElementById('val-k').innerText = '130';
+
+                // Set Badges
+                updateBadge('badge-n', 'OPTIMAL', 'emerald');
+                updateBadge('badge-p', 'OPTIMAL', 'emerald');
+                updateBadge('badge-k', 'OPTIMAL', 'emerald');
+
+                // Highlight Rule Engine Line 3
+                document.getElementById('code-line-3').className = 'p-1 rounded bg-emerald-500/20 text-emerald-300 font-bold border-l-2 border-emerald-400';
+
+                // Update Status Banner
+                statusBox.className = 'bg-emerald-500/10 border border-emerald-500/30 rounded-xl p-3 flex items-center space-x-3 transition-colors duration-300';
+                statusIcon.className = 'w-9 h-9 rounded-lg bg-emerald-500/20 text-emerald-400 flex items-center justify-center shrink-0';
+                statusIcon.innerHTML = '<i class="fa-solid fa-check-double text-base"></i>';
+                statusText.innerText = 'Kondisi Tanah Optimal (Dosing Standby)';
+                statusText.className = 'text-xs font-bold text-emerald-400';
+
+                // Add Audit Log
+                addLog('Kondisi Tanah Optimal', 'Seluruh parameter hara NPK berada pada rentang ideal.', 'emerald');
+            }
+        }
+
+        // Helper: Update Badge UI
+        function updateBadge(id, text, color) {
+            const badge = document.getElementById(id);
+            badge.innerText = text;
+            if (color === 'emerald') {
+                badge.className = 'px-2 py-0.5 rounded font-bold bg-emerald-500/20 text-emerald-400';
+            } else if (color === 'amber') {
+                badge.className = 'px-2 py-0.5 rounded font-bold bg-amber-500/20 text-amber-400';
+            } else if (color === 'purple') {
+                badge.className = 'px-2 py-0.5 rounded font-bold bg-purple-500/20 text-purple-400';
+            }
+        }
+
+        // Manual Pump Toggle Switch
+        function togglePump(pumpKey) {
+            pumpStates[pumpKey] = !pumpStates[pumpKey];
+            const btn = document.getElementById(`btn-pump-${pumpKey}`);
+            
+            if (pumpStates[pumpKey]) {
+                btn.innerText = 'ON';
+                btn.className = 'px-3 py-1 rounded-lg text-xs font-bold bg-emerald-500 text-white shadow-lg shadow-emerald-500/30 transition';
+                addLog(`Manual Override: Pompa ${pumpKey.toUpperCase()} Activated`, 'Pompa dihidupkan secara manual oleh pengguna.', 'sky');
+            } else {
+                btn.innerText = 'OFF';
+                btn.className = 'px-3 py-1 rounded-lg text-xs font-bold bg-slate-800 text-slate-400 hover:text-white transition';
+            }
+        }
+
+        // Add Log Item Dynamically
+        function addLog(title, desc, type) {
+            const container = document.getElementById('log-container');
+            const now = new Date();
+            const timeStr = now.toLocaleTimeString('id-ID', { hour: '2-digit', minute: '2-digit', second: '2-digit' });
+
+            let colorClass = 'bg-sky-500/10 border-sky-500/20 text-sky-400';
+            let iconClass = 'fa-info-circle';
+
+            if (type === 'amber') {
+                colorClass = 'bg-amber-500/10 border-amber-500/20 text-amber-400';
+                iconClass = 'fa-triangle-exclamation';
+            } else if (type === 'purple') {
+                colorClass = 'bg-purple-500/10 border-purple-500/20 text-purple-400';
+                iconClass = 'fa-pump-medical';
+            } else if (type === 'emerald') {
+                colorClass = 'bg-emerald-500/10 border-emerald-500/20 text-emerald-400';
+                iconClass = 'fa-circle-check';
+            }
+
+            const item = document.createElement('div');
+            item.className = `p-2.5 rounded-xl border ${colorClass} text-xs transition-all duration-300`;
+            item.innerHTML = `
+                <div class="flex justify-between items-center font-bold mb-0.5">
+                    <span><i class="fa-solid ${iconClass} mr-1"></i> ${title}</span>
+                    <span class="text-[10px] text-slate-400 font-normal">${timeStr}</span>
+                </div>
+                <p class="text-slate-300 text-[11px]">${desc}</p>
+            `;
+
+            container.insertBefore(item, container.firstChild);
+        }
+
+        function clearLogs() {
+            document.getElementById('log-container').innerHTML = '';
+        }
+
+        // Initialize Chart.js
+        function initChart() {
+            const ctx = document.getElementById('npkChart').getContext('2d');
+            
+            const data7d = {
+                labels: ['24 Sep', '25 Sep', '26 Sep', '27 Sep', '28 Sep', '29 Sep', '30 Sep'],
+                datasets: [
+                    {
+                        label: 'Nitrogen (N) - ppm',
+                        data: [35, 32, 29, 40, 36, 30, 28],
+                        borderColor: '#f59e0b',
+                        backgroundColor: 'rgba(245, 158, 11, 0.1)',
+                        tension: 0.3,
+                        borderWidth: 2,
+                        pointRadius: 4
+                    },
+                    {
+                        label: 'Fosfor (P) - ppm',
+                        data: [25, 22, 18, 26, 24, 20, 15],
+                        borderColor: '#c084fc',
+                        backgroundColor: 'rgba(192, 132, 252, 0.1)',
+                        tension: 0.3,
+                        borderWidth: 2,
+                        pointRadius: 4
+                    },
+                    {
+                        label: 'Kalium (K) - ppm',
+                        data: [110, 115, 125, 120, 118, 122, 120],
+                        borderColor: '#10b981',
+                        backgroundColor: 'rgba(16, 185, 129, 0.1)',
+                        tension: 0.3,
+                        borderWidth: 2,
+                        pointRadius: 4
+                    }
+                ]
+            };
+
+            chartInstance = new Chart(ctx, {
+                type: 'line',
+                data: data7d,
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: false,
+                    plugins: {
+                        legend: {
+                            labels: {
+                                color: '#94a3b8',
+                                font: { family: 'Plus Jakarta Sans', size: 11 }
+                            }
+                        }
+                    },
+                    scales: {
+                        x: {
+                            grid: { color: 'rgba(255, 255, 255, 0.05)' },
+                            ticks: { color: '#94a3b8' }
+                        },
+                        y: {
+                            grid: { color: 'rgba(255, 255, 255, 0.05)' },
+                            ticks: { color: '#94a3b8' }
+                        }
+                    }
+                }
+            });
+        }
+
+        // Change Chart Timespan
+        function changeChartRange(range) {
+            const btn7d = document.getElementById('btn-7d');
+            const btn24h = document.getElementById('btn-24h');
+
+            if (range === '24h') {
+                btn24h.className = 'px-3 py-1 rounded-lg bg-sky-500 text-white font-bold';
+                btn7d.className = 'px-3 py-1 rounded-lg text-slate-400 hover:text-white font-semibold';
+                
+                chartInstance.data.labels = ['00:00', '04:00', '08:00', '12:00', '16:00', '20:00'];
+                chartInstance.data.datasets[0].data = [34, 32, 30, 29, 28, 28];
+                chartInstance.data.datasets[1].data = [20, 19, 18, 16, 15, 15];
+                chartInstance.data.datasets[2].data = [122, 121, 120, 120, 119, 120];
+            } else {
+                btn7d.className = 'px-3 py-1 rounded-lg bg-sky-500 text-white font-bold';
+                btn24h.className = 'px-3 py-1 rounded-lg text-slate-400 hover:text-white font-semibold';
+
+                chartInstance.data.labels = ['24 Sep', '25 Sep', '26 Sep', '27 Sep', '28 Sep', '29 Sep', '30 Sep'];
+                chartInstance.data.datasets[0].data = [35, 32, 29, 40, 36, 30, 28];
+                chartInstance.data.datasets[1].data = [25, 22, 18, 26, 24, 20, 15];
+                chartInstance.data.datasets[2].data = [110, 115, 125, 120, 118, 122, 120];
+            }
+            chartInstance.update();
+        }
+    </script>
+</body>
+</html>
